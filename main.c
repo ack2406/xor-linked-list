@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "xor_linked_list.h"
+#include "xorl.h"
 
 
 static const char* err_str(xorl_err e) {

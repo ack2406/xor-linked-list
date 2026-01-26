@@ -1,0 +1,8 @@
+program
+*.o
+.DS_Store
+
+# Keep compiled binaries and debug paths out of Git.
+/demo
+/program
+*.o

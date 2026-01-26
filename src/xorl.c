@@ -1,4 +1,4 @@
-#include "xor_linked_list.h"
+#include "xorl.h"
 
 #include <stdint.h>
 #include <stdlib.h>
