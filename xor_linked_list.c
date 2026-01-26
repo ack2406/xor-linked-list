@@ -14,8 +14,8 @@ struct xorl_list {
 
     size_t size;
 
-    struct xorl_node* act;
-    struct xorl_node* act_prev;
+    struct xorl_node* cursor;
+    struct xorl_node* cursor_prev;
 };
 
 static inline struct xorl_node* xorl_ptr_xor(struct xorl_node* a, struct xorl_node* b) {
@@ -39,8 +39,8 @@ xorl_list* xorl_create() {
     l->head = NULL;
     l->tail = NULL; 
     l->size = 0;
-    l->act = NULL;
-    l->act_prev = NULL;
+    l->cursor = NULL;
+    l->cursor_prev = NULL;
     
     return l;
 }
@@ -87,9 +87,9 @@ xorl_err xorl_list_push_front(xorl_list* l, int v) {
     
     l->size++;
 
-    if (!l->act) {
-        l->act = l->head;
-        l->act_prev = NULL;
+    if (!l->cursor) {
+        l->cursor = l->head;
+        l->cursor_prev = NULL;
     }
 
     return XORL_OK;
@@ -113,9 +113,9 @@ xorl_err xorl_list_push_back(xorl_list* l, int v) {
 
     l->size++;
 
-    if (!l->act) {
-        l->act = l->tail;
-        l->act_prev = xorl_ptr_xor(l->tail->npx, NULL);
+    if (!l->cursor) {
+        l->cursor = l->tail;
+        l->cursor_prev = xorl_ptr_xor(l->tail->npx, NULL);
     }
 
     return XORL_OK;
@@ -138,20 +138,20 @@ xorl_err xorl_list_pop_front(xorl_list* l, int* out_v) {
         l->head = next;
     }
 
-    if (l->act == old) {
-        l->act = next;
-        l->act_prev = NULL;
-    } else if (l->act_prev == old) {
-        l->act = l->head;
-        l->act_prev = NULL;
+    if (l->cursor == old) {
+        l->cursor = next;
+        l->cursor_prev = NULL;
+    } else if (l->cursor_prev == old) {
+        l->cursor = l->head;
+        l->cursor_prev = NULL;
     }
 
     free(old);
     l->size--;
 
     if (l->size == 0) {
-        l->act = NULL;
-        l->act_prev = NULL;
+        l->cursor = NULL;
+        l->cursor_prev = NULL;
     }
 
     return XORL_OK;
@@ -174,83 +174,83 @@ xorl_err xorl_list_pop_back(xorl_list* l, int* out_v) {
         l->tail = prev;
     }
 
-    if (l->act == old) {
-        l->act = prev;
+    if (l->cursor == old) {
+        l->cursor = prev;
 
-        if (l->act) {
-            l->act_prev = xorl_ptr_xor(l->act->npx, NULL);
+        if (l->cursor) {
+            l->cursor_prev = xorl_ptr_xor(l->cursor->npx, NULL);
         } else {
-            l->act_prev = NULL;
+            l->cursor_prev = NULL;
         }
-    } else if (l->act_prev == old) {
-        l->act = l->tail;
-        l->act_prev = l->tail ? xorl_ptr_xor(l->tail->npx, NULL) : NULL;
+    } else if (l->cursor_prev == old) {
+        l->cursor = l->tail;
+        l->cursor_prev = l->tail ? xorl_ptr_xor(l->tail->npx, NULL) : NULL;
     }
 
     free(old);
     l->size--;
 
     if (l->size == 0) {
-        l->act = NULL;
-        l->act_prev = NULL;
+        l->cursor = NULL;
+        l->cursor_prev = NULL;
     }
 
     return XORL_OK;
 }
 
 
-void xorl_act_to_head(xorl_list* l) {
+void xorl_cursor_to_head(xorl_list* l) {
     if (!l) return;
-    l->act = l->head;
-    l->act_prev = NULL;
+    l->cursor = l->head;
+    l->cursor_prev = NULL;
 }
 
-void xorl_act_to_tail(xorl_list* l) {
+void xorl_cursor_to_tail(xorl_list* l) {
     if (!l) return;
-    l->act = l->tail;
-    l->act_prev = l->tail ? xorl_ptr_xor(l->tail->npx, NULL) : NULL;
+    l->cursor = l->tail;
+    l->cursor_prev = l->tail ? xorl_ptr_xor(l->tail->npx, NULL) : NULL;
 }
 
-xorl_err xorl_act_next(xorl_list* l) {
+xorl_err xorl_cursor_next(xorl_list* l) {
     if (!l) return XORL_ERR_BADARG;
-    if (!l->act) return XORL_ERR_EMPTY;
+    if (!l->cursor) return XORL_ERR_EMPTY;
 
-    struct xorl_node* next = xorl_ptr_xor(l->act_prev, l->act->npx);
-    if (!next) return XORL_ERR_EMPTY; // act is on tail
+    struct xorl_node* next = xorl_ptr_xor(l->cursor_prev, l->cursor->npx);
+    if (!next) return XORL_ERR_EMPTY; // cursor is on tail
 
-    l->act_prev = l->act;
-    l->act = next;
+    l->cursor_prev = l->cursor;
+    l->cursor = next;
 
     return XORL_OK;
 }
 
-xorl_err xorl_act_prev(xorl_list* l) {
+xorl_err xorl_cursor_prev(xorl_list* l) {
     if (!l) return XORL_ERR_BADARG;
-    if (!l->act) return XORL_ERR_EMPTY;
-    if (!l->act_prev) return XORL_ERR_EMPTY; // act is on head 
+    if (!l->cursor) return XORL_ERR_EMPTY;
+    if (!l->cursor_prev) return XORL_ERR_EMPTY; // cursor is on head 
     
-    struct xorl_node* prev_prev = xorl_ptr_xor(l->act_prev->npx, l->act);
+    struct xorl_node* prev_prev = xorl_ptr_xor(l->cursor_prev->npx, l->cursor);
 
-    l->act = l->act_prev;
-    l->act_prev = prev_prev;
+    l->cursor = l->cursor_prev;
+    l->cursor_prev = prev_prev;
 
     return XORL_OK;
 }
 
-xorl_err xorl_act_insert_after(xorl_list* l, int v) {
+xorl_err xorl_cursor_insert_after(xorl_list* l, int v) {
     if (!l) return XORL_ERR_BADARG;
    
-    if (!l->head || !l->act) {
+    if (!l->head || !l->cursor) {
         xorl_err e = xorl_list_push_back(l, v);
         if (e == XORL_OK) {
-            l->act = l->tail;
-            l->act_prev = xorl_ptr_xor(l->tail->npx, NULL);
+            l->cursor = l->tail;
+            l->cursor_prev = xorl_ptr_xor(l->tail->npx, NULL);
         }
         return e;
     }
 
-    struct xorl_node* prev = l->act_prev;
-    struct xorl_node* cur  = l->act;
+    struct xorl_node* prev = l->cursor_prev;
+    struct xorl_node* cur  = l->cursor;
     struct xorl_node* next = xorl_ptr_xor(prev, cur->npx);
 
     struct xorl_node* n = xorl_node_new(v);
@@ -266,36 +266,36 @@ xorl_err xorl_act_insert_after(xorl_list* l, int v) {
         l->tail = n;
     }
 
-    l->act = n;
-    l->act_prev = cur;
+    l->cursor = n;
+    l->cursor_prev = cur;
 
     l->size++;
     return XORL_OK;
 }
    
-xorl_err xorl_act_insert_before(xorl_list* l, int v) {
+xorl_err xorl_cursor_insert_before(xorl_list* l, int v) {
     if (!l) return XORL_ERR_BADARG;
    
-    if (!l->head || !l->act) {
+    if (!l->head || !l->cursor) {
         xorl_err e = xorl_list_push_back(l, v);
         if (e == XORL_OK) {
-            l->act = l->tail;
-            l->act_prev = xorl_ptr_xor(l->tail->npx, NULL);
+            l->cursor = l->tail;
+            l->cursor_prev = xorl_ptr_xor(l->tail->npx, NULL);
         }
         return e;
     }
 
-    if (!l->act_prev) {
+    if (!l->cursor_prev) {
         xorl_err e = xorl_list_push_front(l, v);
         if (e == XORL_OK) {
-            l->act = l->head;
-            l->act_prev = NULL;
+            l->cursor = l->head;
+            l->cursor_prev = NULL;
         }
         return e;
     }
 
-    struct xorl_node* prev = l->act_prev;
-    struct xorl_node* cur  = l->act;
+    struct xorl_node* prev = l->cursor_prev;
+    struct xorl_node* cur  = l->cursor;
     struct xorl_node* next = xorl_ptr_xor(prev, cur->npx);
     struct xorl_node* prev_prev = xorl_ptr_xor(prev->npx, cur);
 
@@ -307,26 +307,26 @@ xorl_err xorl_act_insert_before(xorl_list* l, int v) {
     cur->npx = xorl_ptr_xor(n, next);
     prev->npx = xorl_ptr_xor(prev_prev, n);
 
-    l->act = n;
-    l->act_prev = prev;
+    l->cursor = n;
+    l->cursor_prev = prev;
 
     l->size++;
     return XORL_OK;
 }
 
-xorl_err xorl_act_get(const xorl_list* l, int* out_v) {
+xorl_err xorl_cursor_get(const xorl_list* l, int* out_v) {
     if (!l || !out_v) return XORL_ERR_BADARG;
-    if (!l->act) return XORL_ERR_EMPTY;
-    *out_v = l->act->val;
+    if (!l->cursor) return XORL_ERR_EMPTY;
+    *out_v = l->cursor->val;
     return XORL_OK;
 }
 
-xorl_err xorl_act_erase(xorl_list* l, int* out_v) {
+xorl_err xorl_cursor_erase(xorl_list* l, int* out_v) {
     if (!l) return XORL_ERR_BADARG;
-    if (!l->act) return XORL_ERR_EMPTY;
+    if (!l->cursor) return XORL_ERR_EMPTY;
     
-    struct xorl_node* prev = l->act_prev;
-    struct xorl_node* cur = l->act;
+    struct xorl_node* prev = l->cursor_prev;
+    struct xorl_node* cur = l->cursor;
     struct xorl_node* next = xorl_ptr_xor(prev, cur->npx);
 
     if (out_v) *out_v = cur->val;
@@ -353,17 +353,17 @@ xorl_err xorl_act_erase(xorl_list* l, int* out_v) {
     l->size--;
 
     if (l->size == 0) {
-        l->act = NULL;
-        l->act_prev = NULL;
+        l->cursor = NULL;
+        l->cursor_prev = NULL;
         return XORL_OK;
     }
 
     if (next) {
-        l->act = next;
-        l->act_prev = prev;
+        l->cursor = next;
+        l->cursor_prev = prev;
     } else {
-        l->act = prev;
-        l->act_prev = prev_prev;
+        l->cursor = prev;
+        l->cursor_prev = prev_prev;
     }
 
     return XORL_OK;

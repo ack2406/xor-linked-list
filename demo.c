@@ -28,13 +28,13 @@ static void dump(const xorl_list* l, const char* label) {
     printf("]\n");
 }
 
-static void show_act(const xorl_list* l, const char* label) {
+static void show_cursor(const xorl_list* l, const char* label) {
     int v;
-    xorl_err e = xorl_act_get(l, &v);
+    xorl_err e = xorl_cursor_get(l, &v);
     if (e == XORL_OK) {
-        printf("%s act=%d\n", label, v);
+        printf("%s cursor=%d\n", label, v);
     } else {
-        printf("%s act=(none) err=%s\n", label, err_str(e));
+        printf("%s cursor=(none) err=%s\n", label, err_str(e));
     }
 }
 
@@ -81,9 +81,9 @@ int main(void) {
     int v = -1;
     printf("pop_front(empty) -> %s\n", err_str(xorl_list_pop_front(l, &v)));
     printf("pop_back(empty)  -> %s\n", err_str(xorl_list_pop_back(l, &v)));
-    printf("act_get(empty)   -> %s\n", err_str(xorl_act_get(l, &v)));
-    printf("act_next(empty)  -> %s\n", err_str(xorl_act_next(l)));
-    printf("act_prev(empty)  -> %s\n", err_str(xorl_act_prev(l)));
+    printf("cursor_get(empty)   -> %s\n", err_str(xorl_cursor_get(l, &v)));
+    printf("cursor_next(empty)  -> %s\n", err_str(xorl_cursor_next(l)));
+    printf("cursor_prev(empty)  -> %s\n", err_str(xorl_cursor_prev(l)));
 
     // 2) Basic pushes
     printf("\n-- push_front / push_back --\n");
@@ -95,55 +95,55 @@ int main(void) {
 
     // 3) Cursor navigation
     printf("\n-- cursor: to_head/to_tail, next/prev, get --\n");
-    xorl_act_to_head(l);
-    show_act(l, "to_head:");
-    must_ok(xorl_act_next(l), "act_next");
-    show_act(l, "after next:");
-    must_ok(xorl_act_next(l), "act_next");
-    show_act(l, "after next:");
-    must_ok(xorl_act_prev(l), "act_prev");
-    show_act(l, "after prev:");
+    xorl_cursor_to_head(l);
+    show_cursor(l, "to_head:");
+    must_ok(xorl_cursor_next(l), "cursor_next");
+    show_cursor(l, "after next:");
+    must_ok(xorl_cursor_next(l), "cursor_next");
+    show_cursor(l, "after next:");
+    must_ok(xorl_cursor_prev(l), "cursor_prev");
+    show_cursor(l, "after prev:");
 
-    xorl_act_to_tail(l);
-    show_act(l, "to_tail:");
-    must_ok(xorl_act_prev(l), "act_prev");
-    show_act(l, "after prev from tail:");
+    xorl_cursor_to_tail(l);
+    show_cursor(l, "to_tail:");
+    must_ok(xorl_cursor_prev(l), "cursor_prev");
+    show_cursor(l, "after prev from tail:");
 
     // 4) Insert around cursor
     printf("\n-- cursor inserts: insert_after / insert_before --\n");
-    xorl_act_to_head(l);
-    must_ok(xorl_act_next(l), "act_next (move to 1)");
-    show_act(l, "cursor at:");
-    must_ok(xorl_act_insert_after(l, 99), "act_insert_after(99)");
-    show_act(l, "after insert_after (cursor should be 99):");
+    xorl_cursor_to_head(l);
+    must_ok(xorl_cursor_next(l), "cursor_next (move to 1)");
+    show_cursor(l, "cursor at:");
+    must_ok(xorl_cursor_insert_after(l, 99), "cursor_insert_after(99)");
+    show_cursor(l, "after insert_after (cursor should be 99):");
     dump(l, "after insert_after");
 
-    must_ok(xorl_act_insert_before(l, 77), "act_insert_before(77)");
-    show_act(l, "after insert_before (cursor should be 77):");
+    must_ok(xorl_cursor_insert_before(l, 77), "cursor_insert_before(77)");
+    show_cursor(l, "after insert_before (cursor should be 77):");
     dump(l, "after insert_before");
 
     // 5) Erase current
-    printf("\n-- cursor erase: act_erase --\n");
+    printf("\n-- cursor erase: cursor_erase --\n");
     int erased = -1;
-    must_ok(xorl_act_erase(l, &erased), "act_erase");
+    must_ok(xorl_cursor_erase(l, &erased), "cursor_erase");
     printf("erased=%d\n", erased);
-    show_act(l, "cursor after erase:");
+    show_cursor(l, "cursor after erase:");
     dump(l, "after erase");
 
     // 6) Pop operations affecting cursor safety
     printf("\n-- pop_front / pop_back (cursor safety) --\n");
-    xorl_act_to_head(l);
-    show_act(l, "cursor to_head:");
+    xorl_cursor_to_head(l);
+    show_cursor(l, "cursor to_head:");
     must_ok(xorl_list_pop_front(l, &v), "pop_front");
     printf("pop_front -> %d\n", v);
-    show_act(l, "cursor after pop_front:");
+    show_cursor(l, "cursor after pop_front:");
     dump(l, "state");
 
-    xorl_act_to_tail(l);
-    show_act(l, "cursor to_tail:");
+    xorl_cursor_to_tail(l);
+    show_cursor(l, "cursor to_tail:");
     must_ok(xorl_list_pop_back(l, &v), "pop_back");
     printf("pop_back -> %d\n", v);
-    show_act(l, "cursor after pop_back:");
+    show_cursor(l, "cursor after pop_back:");
     dump(l, "state");
 
     // 7) foreach callbacks: sum + find
