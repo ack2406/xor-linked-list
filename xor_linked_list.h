@@ -24,17 +24,17 @@ xorl_err   xorl_list_pop_front(xorl_list* l, int* out_v);
 xorl_err   xorl_list_pop_back(xorl_list* l, int* out_v);
 
 
-void       xorl_act_to_head(xorl_list* l);
-void       xorl_act_to_tail(xorl_list* l);
+void       xorl_cursor_to_head(xorl_list* l);
+void       xorl_cursor_to_tail(xorl_list* l);
 
-xorl_err   xorl_act_next(xorl_list* l);
-xorl_err   xorl_act_prev(xorl_list* l);
+xorl_err   xorl_cursor_next(xorl_list* l);
+xorl_err   xorl_cursor_prev(xorl_list* l);
 
-xorl_err   xorl_act_insert_after(xorl_list* l, int v);
-xorl_err   xorl_act_insert_before(xorl_list* l, int v);
+xorl_err   xorl_cursor_insert_after(xorl_list* l, int v);
+xorl_err   xorl_cursor_insert_before(xorl_list* l, int v);
 
-xorl_err   xorl_act_get(const xorl_list* l, int* out_v);
-xorl_err   xorl_act_erase(xorl_list* l, int* out_v);
+xorl_err   xorl_cursor_get(const xorl_list* l, int* out_v);
+xorl_err   xorl_cursor_erase(xorl_list* l, int* out_v);
 
 
 typedef void (*xorl_visit_fn)(int value, void* user);
